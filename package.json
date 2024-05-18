@@ -1,0 +1,44 @@
+{
+  "name": "@harmony/harmony",
+  "version": "1.0.0",
+  "description": "Core parts for Harmony with vite.",
+  "main": "dist/harmony.js",
+  "module": "dist/harmony.mjs",
+  "types": "dist/harmony.d.ts",
+  "files": [
+    "dist",
+    "public/index.html"
+  ],
+  "scripts": {
+    "build": "vite build --config vite.config.ts && vite build --config vite.config.page.ts && tsc --emitDeclarationOnly",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "vite",
+    "plugin"
+  ],
+  "author": "KingMaj0r",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@types/connect": "^3.4.38",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
+    "@types/serve-static": "^1.15.7",
+    "@vitejs/plugin-react": "^4.2.1",
+    "axios": "^1.6.8",
+    "connect": "^3.7.0",
+    "js-yaml": "^4.1.0",
+    "react": "^18.3.1",
+    "serve-static": "^1.15.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11",
+    "vite-plugin-node-polyfills": "^0.21.0"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "react-dom": "^18.3.1"
+  }
+}
