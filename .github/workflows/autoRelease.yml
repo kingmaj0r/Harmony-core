@@ -51,6 +51,6 @@ jobs:
         git add package.json
         git commit -m "Bump version to $new_version"
         
-        zip -r Harmony-core-v$new_version.zip dist/
+        zip -r assets.zip dist/
         
-        gh release create v$new_version --generate-notes --title "Harmony-core v$new_version" --file Harmony-core-v$new_version.zip
+        gh release create v$new_version --generate-notes --title "Harmony-core assets - v$new_version" --file assets.zip
