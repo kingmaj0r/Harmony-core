@@ -50,7 +50,7 @@ jobs:
         
         git add package.json
         git commit -m "Bump version to $new_version"
-
-        git push -u origin main
         
         gh release create v$new_version --generate-notes
+
+        git push -u origin main
