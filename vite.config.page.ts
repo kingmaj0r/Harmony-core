@@ -10,7 +10,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: 'src/index.tsx',
-      formats: ['esm'],
+      formats: ['es'],
       fileName: "index",
     },
   },
