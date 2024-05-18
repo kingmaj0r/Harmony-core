@@ -1,6 +1,6 @@
 {
   "name": "@harmony/harmony",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Core parts for Harmony with vite.",
   "main": "dist/harmony.js",
   "module": "dist/harmony.mjs",
