@@ -1,19 +1,12 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   plugins: [
     nodePolyfills(),
-    {
-      name: 'resolve-fs',
-      resolveId(source, importer) {
-        if (source === 'fs') {
-          return path.resolve(__dirname, 'node_modules/browserify-fs/index.js');
-        }
-        return null;
-      },
-    },
+    dts(),
   ],
   build: {
     outDir: 'dist',
@@ -22,6 +15,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: 'src/harmony.ts',
+      name: 'harmony-core',
       formats: ['cjs', 'es'],
       fileName: (format) => `harmony.${format === 'es' ? 'mjs' : 'js'}`,
     },
