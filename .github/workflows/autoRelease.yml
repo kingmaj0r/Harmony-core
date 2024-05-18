@@ -37,6 +37,6 @@ jobs:
         
         new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseInt(v)+0.1:parseInt(v)).join('.'))")
         
-        npm version $new_version -m "Bump version to %s"
+        npm version $new_version minor -m "Bump version to %s"
         
         gh release create v$new_version --generate-notes
