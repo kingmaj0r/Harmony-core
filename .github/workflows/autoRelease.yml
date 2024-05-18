@@ -35,8 +35,20 @@ jobs:
         
         version=$(node -p "require('./package.json').version")
         
-        new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseInt(v)+0.1:parseInt(v)).join('.'))")
+        latest_release=$(gh release list --limit 1 --json tag_name --jq '.[0].tag_name')
         
-        npm version $new_version minor -m "Bump version to %s"
+        if [ -z "$latest_release" ]; then
+          major=$(echo $version | cut -d. -f1)
+          minor=$(echo $version | cut -d. -f2)
+          patch=$(echo $version | cut -d. -f3)
+          new_version="$major.$minor.$(($patch + 0.1))"
+        else
+          new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
+        fi
+        
+        npm version $new_version --no-git-tag-version
+        
+        git add package.json
+        git commit -m "Bump version to $new_version"
         
         gh release create v$new_version --generate-notes
