@@ -41,7 +41,7 @@ jobs:
           major=$(echo $version | cut -d. -f1)
           minor=$(echo $version | cut -d. -f2)
           patch=$(echo $version | cut -d. -f3)
-          new_version="$major.$minor.$(($patch + 0.1))"
+          new_version="$major.$minor.$((patch + 1))"
         else
           new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
         fi
