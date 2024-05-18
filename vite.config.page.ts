@@ -13,8 +13,5 @@ export default defineConfig({
       formats: ['cjs'],
       fileName: "index",
     },
-    rollupOptions: {
-      external: ['react', 'react-dom'],
-    },
   },
 });
