@@ -52,5 +52,12 @@ jobs:
         git commit -m "Bump version to $new_version"
         
         zip -r assets.zip dist/
-        
-        gh release create v$new_version --generate-notes --title "Harmony-core assets - v$new_version" --file assets.zip
+    - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: assets.zip
+        asset_name: Harmony-core assets - v$new_version
+        asset_content_type: application/zip
