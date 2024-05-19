@@ -21,8 +21,6 @@ jobs:
     - name: Build project
       run: npm run build
     - name: Bump version
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         version=$(node -p "require('./package.json').version")
         latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
@@ -34,11 +32,14 @@ jobs:
         else
           new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
         fi
+        echo "new_version=$new_version" >> $GITHUB_OUTPUT
         npm version $new_version --no-git-tag-version
     - uses: actions/upload-artifact@v2
       with:
         name: build
-        path: .
+        path: |
+          !node_modules
+          .
         
   publish-github-release:
     needs: build
@@ -50,10 +51,11 @@ jobs:
       - name: publish github release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          gh release create v$new_version --generate-notes
+          gh release create v$NEW_VERSION --generate-notes
 
   publish-npm:
     needs: build
@@ -66,6 +68,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+      - run: npm ci
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -84,6 +87,7 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://npm.pkg.github.com'
+      - run: npm ci
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -102,10 +106,12 @@ jobs:
           with:
             node-version: 16
         - name: release all the changes to github repo
+          env:
+            NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
           run: |
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
             git add package.json
             git add dist/
-            git commit -m "Bump version to $new_version"
+            git commit -m "Bump version to $NEW_VERSION"
             git push -u origin main
