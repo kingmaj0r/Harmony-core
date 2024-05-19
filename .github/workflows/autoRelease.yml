@@ -21,6 +21,8 @@ jobs:
     - name: Build project
       run: npm run build
     - name: Bump version
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         version=$(node -p "require('./package.json').version")
         latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
