@@ -40,6 +40,7 @@ jobs:
       with:
         name: build
         path: |
+          .git/
           dist/
           public/
           src/
