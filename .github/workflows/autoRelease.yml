@@ -16,9 +16,9 @@ jobs:
         fetch-depth: 0
         
     - name: Use Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
-        node-version: '14'
+        node-version: '20'
         
     - name: Install dependencies
       run: npm i
@@ -48,10 +48,6 @@ jobs:
         
         npm version $new_version --no-git-tag-version
         
-        git add package.json
-        git add dist/
-        git commit -m "Bump version to $new_version"
-        
         gh release create v$new_version --generate-notes
 
         git push -u origin main
@@ -59,16 +55,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/download-artifact@v4
         with:
-          node-version: 16
+          path: ./ 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-          
+
   publish-gpr:
     needs: build
     runs-on: ubuntu-latest
@@ -76,13 +73,32 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./ 
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
           registry-url: 'https://npm.pkg.github.com'
-      - run: npm ci
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          
+  publish-github:
+      needs: [build, publish-npm, publish-gpr]
+      runs-on: ubuntu-latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      steps:
+        - uses: actions/download-artifact@v3
+          with:
+            path: ./ 
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 16
+        - name: release all the changes to github repo
+          run: |
+            git add package.json
+            git add dist/
+            git commit -m "Bump version to $new_version"
