@@ -47,17 +47,24 @@ jobs:
         fi
         
         npm version $new_version --no-git-tag-version
-        
-        gh release create v$new_version --generate-notes
+  publish-github-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - name: publish github release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v$new_version --generate-notes
 
-        git push -u origin main
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: ./ 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -73,9 +80,6 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: ./ 
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -91,9 +95,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       steps:
-        - uses: actions/download-artifact@v3
-          with:
-            path: ./ 
         - uses: actions/setup-node@v3
           with:
             node-version: 16
@@ -102,3 +103,4 @@ jobs:
             git add package.json
             git add dist/
             git commit -m "Bump version to $new_version"
+            git push -u origin main
