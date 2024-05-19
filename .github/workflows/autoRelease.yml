@@ -6,37 +6,26 @@ on:
       - main
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        
     - name: Install dependencies
       run: npm i
-        
     - name: Build project
       run: npm run build
-        
-    - name: Bump version and create release
+    - name: Bump version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        
         version=$(node -p "require('./package.json').version")
-        
         latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
-        
         if [ -z "$latest_release" ]; then
           major=$(echo $version | cut -d. -f1)
           minor=$(echo $version | cut -d. -f2)
@@ -45,26 +34,34 @@ jobs:
         else
           new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
         fi
-        
         npm version $new_version --no-git-tag-version
+    - uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: .
+        
   publish-github-release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v2
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
+          name: build
       - name: publish github release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           gh release create v$new_version --generate-notes
 
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -80,6 +77,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -95,11 +95,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       steps:
+        - uses: actions/download-artifact@v2
+          with:
+            name: build
         - uses: actions/setup-node@v3
           with:
             node-version: 16
         - name: release all the changes to github repo
           run: |
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
             git add package.json
             git add dist/
             git commit -m "Bump version to $new_version"
