@@ -49,6 +49,7 @@ jobs:
         npm version $new_version --no-git-tag-version
         
         git add package.json
+        git add dist/
         git commit -m "Bump version to $new_version"
         
         gh release create v$new_version --generate-notes
