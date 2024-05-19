@@ -6,37 +6,26 @@ on:
       - main
 
 jobs:
-
-  release:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        
     - name: Use Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
-        node-version: '14'
-        
+        node-version: '20'
     - name: Install dependencies
       run: npm i
-        
     - name: Build project
       run: npm run build
-        
-    - name: Bump version and create release
+    - name: Bump version
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        
         version=$(node -p "require('./package.json').version")
-        
         latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
-        
         if [ -z "$latest_release" ]; then
           major=$(echo $version | cut -d. -f1)
           minor=$(echo $version | cut -d. -f2)
@@ -45,12 +34,94 @@ jobs:
         else
           new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
         fi
-        
+        echo "new_version=$new_version" >> $GITHUB_OUTPUT
         npm version $new_version --no-git-tag-version
-        
-        git add package.json
-        git commit -m "Bump version to $new_version"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: |
+          .git/
+          dist/
+          public/
+          src/
+          types/
+          package.json
+          package-lock.json
+          tsconfig.json
+          vite.config.ts
+          vite.config.page.ts
 
-        git push -u origin main
-        
-        gh release create v$new_version --generate-notes
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm ci
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          
+  publish-github-release:
+    needs: [build, publish-npm, publish-gpr]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
+      - name: publish github release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          gh release create v$NEW_VERSION --generate-notes
+          
+  publish-github:
+      needs: [build, publish-npm, publish-gpr, publish-github-release]
+      runs-on: ubuntu-latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      steps:
+        - uses: actions/download-artifact@v2
+          with:
+            name: build
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 16
+        - name: release all the changes to github repo
+          env:
+            NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
+          run: |
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add package.json
+            git add dist/*
+            git commit -m "Bump version to $NEW_VERSION"
+            git push -u origin main
