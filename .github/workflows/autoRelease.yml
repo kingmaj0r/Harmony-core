@@ -40,8 +40,15 @@ jobs:
       with:
         name: build
         path: |
-          !node_modules
-          .
+          dist/
+          public/
+          src/
+          types/
+          package.json
+          package-lock.json
+          tsconfig.json
+          vite.config.ts
+          vite.config.page.ts
         
   publish-github-release:
     needs: build
