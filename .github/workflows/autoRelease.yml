@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.bump_version.outputs.new_version }}
+      new-version: ${{ steps.bump_version.outputs.new_version }}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -88,27 +88,29 @@ jobs:
       - name: publish github release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.outputs.new_version }}
+          NEW_VERSION: ${{ needs.build.outputs.new-version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           gh release create V$NEW_VERSION --generate-notes
-
   publish-github:
     needs: [build, publish-npm, publish-gpr, publish-github-release]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
         with:
           name: build
-      - name: release all the changes to github repo
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.outputs.new_version }}
+      - name: Configure Git
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+      - name: Release all the changes to GitHub repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ needs.build.outputs.new-version }}
+        run: |
           git add package.json
           git add dist/*
           git commit -m "Bump version to $NEW_VERSION"
-          git push -u origin main
+          git push origin main
