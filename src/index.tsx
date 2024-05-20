@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import axios from "axios";
 import YAML from "js-yaml";
 
@@ -10,7 +10,7 @@ interface Service {
 
 interface Config {
   app: {
-    url: string;
+    host: string;
     frontend: Service;
     backend: Service;
   };
@@ -61,7 +61,7 @@ const App: React.FC = () => {
   if (!config) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
-        <img src="assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
+        <img src="https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core/dist/assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
         <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur">
           <a href="https://github.com/KingMaj0r/harmony">
             <img src="assets/img/logo.png" className="h-24" />
@@ -124,12 +124,12 @@ const App: React.FC = () => {
             <tbody>
               <tr className="frontend-status">
                 <td className="text-gray-400">Frontend</td>
-                <td className="text-blue-500">{config.app.url  + ":" + config.app.frontend.port}</td>
+                <td className="text-blue-500">{config.app.host  + ":" + config.app.frontend.port}</td>
                 <td className={`text-${frontendStatus === "online" ? "green" : "red"}-500`}>{frontendStatus}</td>
               </tr>
               <tr>
                 <td className="text-gray-400">Backend</td>
-                <td className="text-blue-500">{config.app.url  + ":" + config.app.backend.port}</td>
+                <td className="text-blue-500">{config.app.host  + ":" + config.app.backend.port}</td>
                 <td className={`text-${backendStatus === "online" ? "green" : "red"}-500`}>{backendStatus}</td>
               </tr>
               <tr>
@@ -145,4 +145,4 @@ const App: React.FC = () => {
   );
 };
 
-render(<App />, document.getElementById("root"));
+createRoot(document.getElementById("root")!).render(<App />);
