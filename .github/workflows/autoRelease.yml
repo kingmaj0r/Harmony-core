@@ -86,7 +86,7 @@ jobs:
       - name: publish github release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ steps.build.env.new_version }}
+          NEW_VERSION: ${{ needs.build.env.new_version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
