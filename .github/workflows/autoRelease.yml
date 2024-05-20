@@ -112,4 +112,5 @@ jobs:
           git add package.json
           git add dist/*
           git commit -m "Bump version to $NEW_VERSION"
+          git remote add origin git@github.com/KingMaj0r/Harmony-core.git
           git push origin main
