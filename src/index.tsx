@@ -28,9 +28,9 @@ const App: React.FC = () => {
       const config = await loadConfig();
       setConfig(config);
 
-      const frontendStatus = await pingService(config.app.frontend);
-      const backendStatus = await pingService(config.app.backend);
-      const databaseStatus = await pingService(config.database);
+      const frontendStatus = await pingService(config.app.frontend, "app");
+      const backendStatus = await pingService(config.app.backend, "app");
+      const databaseStatus = await pingService(config.database, "database");
 
       setFrontendStatus(frontendStatus);
       setBackendStatus(backendStatus);
@@ -49,9 +49,10 @@ const App: React.FC = () => {
     return config;
   }
 
-  async function pingService(service: Service): Promise<string> {
+  async function pingService(service: Service, serviceType: string): Promise<string> {
     try {
-      const response = await axios.get(`http://${config?.app.host}:${service.port}`);
+      const host = serviceType === "app" ? config?.app.host : config?.database.host;
+      const response = await axios.get(`http://${host}:${service.port}`);
       return response.status === 200 ? "online" : "offline";
     } catch {
       return "offline";
