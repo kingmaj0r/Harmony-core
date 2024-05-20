@@ -1,24 +1,22 @@
 #!/bin/bash
 
-version=$(node -p "require('./package.json').version")
-latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
+set -e
 
-if [ -z "$latest_release" ]; then
-  major=$(echo $version | cut -d. -f1)
-  minor=$(echo $version | cut -d. -f2)
-  patch=$(echo $version | cut -d. -f3)
-  NEW_VERSION="$major.$minor.$((patch + 1))"
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+
+MAJOR=$(echo $LATEST_TAG | sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\1/')
+MINOR=$(echo $LATEST_TAG | sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\2/')
+PATCH=$(echo $LATEST_TAG | sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\3/')
+
+if [ -z "$LATEST_TAG" ]; then
+  NEW_MAJOR=0
+  NEW_MINOR=0
+  NEW_PATCH=1
 else
-  IFS='.' read -ra version_parts <<< "$version"
-  IFS='.' read -ra latest_release_parts <<< "$latest_release"
-
-  major=${version_parts[0]}
-  minor=${version_parts[1]}
-  patch=${version_parts[2]}
-
-  if [ "${latest_release_parts[0]}" -eq "$major" ] && [ "${latest_release_parts[1]}" -eq "$minor" ]; then
-    NEW_VERSION="$major.$minor.$((patch + 1))"
-  else
-    NEW_VERSION="$major.$((minor + 1)).0"
-  fi
+  NEW_MAJOR=$MAJOR
+  NEW_MINOR=$MINOR
+  NEW_PATCH=$((PATCH + 1))
 fi
+
+NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+jq --arg version "$NEW_VERSION" '.version = $version' package.json > package.json.tmp && mv package.json.tmp package.json
