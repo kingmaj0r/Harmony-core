@@ -23,18 +23,31 @@ jobs:
     - name: Bump version
       id: bump_version
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         version=$(node -p "require('./package.json').version")
         latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
+        
         if [ -z "$latest_release" ]; then
           major=$(echo $version | cut -d. -f1)
           minor=$(echo $version | cut -d. -f2)
           patch=$(echo $version | cut -d. -f3)
           new_version="$major.$minor.$((patch + 1))"
         else
-          new_version=$(node -e "console.log('$version'.split('.').map((v,i) => i===2?parseFloat(v)+0.1:parseInt(v)).join('.'))")
+          IFS='.' read -ra version_parts <<< "$version"
+          IFS='.' read -ra latest_release_parts <<< "$latest_release"
+          
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          
+          if [ "${latest_release_parts[0]}" -eq "$major" ] && [ "${latest_release_parts[1]}" -eq "$minor" ]; then
+            new_version="$major.$minor.$((patch + 1))"
+          else
+            new_version="$major.$((minor + 1)).0"
+          fi
         fi
+        
         echo "new_version=$new_version" >> $GITHUB_OUTPUT
         npm version $new_version --no-git-tag-version
     - uses: actions/upload-artifact@v2
@@ -107,8 +120,6 @@ jobs:
   publish-github:
       needs: [build, publish-npm, publish-gpr, publish-github-release]
       runs-on: ubuntu-latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       steps:
         - uses: actions/download-artifact@v2
           with:
