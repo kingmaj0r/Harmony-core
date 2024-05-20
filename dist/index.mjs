@@ -25671,7 +25671,7 @@ const RM = () => {
   }
   async function B(D) {
     try {
-      return (await ar.get(`http://${D.host}:${D.port}`)).status === 200 ? "online" : "offline";
+      return (await ar.get(`http://${h == null ? void 0 : h.app.host}:${D.port}`)).status === 200 ? "online" : "offline";
     } catch {
       return "offline";
     }

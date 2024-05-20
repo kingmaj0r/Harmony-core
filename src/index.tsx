@@ -51,7 +51,7 @@ const App: React.FC = () => {
 
   async function pingService(service: Service): Promise<string> {
     try {
-      const response = await axios.get(`http://${service.host}:${service.port}`);
+      const response = await axios.get(`http://${config?.app.host}:${service.port}`);
       return response.status === 200 ? "online" : "offline";
     } catch {
       return "offline";
