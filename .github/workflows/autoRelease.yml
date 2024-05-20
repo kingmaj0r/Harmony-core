@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      new-version: ${{ steps.bump_version.outputs.new_version }}
+      new-version: ${{ steps.bump-version.outputs.new_version }}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -21,13 +21,13 @@ jobs:
       - name: Build project
         run: npm run build
       - name: Bump version
-        id: bump_version
+        id: bump-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           . ./.github/scripts/bump_version.sh
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           npm version $new_version --no-git-tag-version
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v2
         with:
           name: build
@@ -42,8 +42,23 @@ jobs:
             tsconfig.json
             vite.config.ts
             vite.config.page.ts
-  publish-npm:
+  publish-github-release:
     needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
+      - name: publish github release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ needs.build.outputs.new-version }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          gh release create V$NEW_VERSION --generate-notes
+  publish-npm:
+    needs: [build, publish-github-release]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -59,7 +74,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
   publish-gpr:
-    needs: [build]
+    needs: [build, publish-github-release]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -77,22 +92,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-  publish-github-release:
-    needs: [build, publish-npm, publish-gpr]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: build
-      - name: publish github release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.outputs.new-version }}
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          gh release create V$NEW_VERSION --generate-notes
   publish-github:
     needs: [build, publish-npm, publish-gpr, publish-github-release]
     runs-on: ubuntu-latest
