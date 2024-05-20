@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.build.bump_version.new_version }}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -86,7 +88,7 @@ jobs:
       - name: publish github release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.env.new_version }}
+          NEW_VERSION: ${{ needs.build.outputs.new_version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -102,7 +104,7 @@ jobs:
       - name: release all the changes to github repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.env.new_version }}
+          NEW_VERSION: ${{ needs.build.outputs.new_version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
