@@ -25677,10 +25677,10 @@ const RM = () => {
     }
   }
   return h ? /* @__PURE__ */ gt.jsxs("div", { className: "flex items-center justify-center min-h-screen flex-col", children: [
-    /* @__PURE__ */ gt.jsx("img", { src: "assets/img/background.jpg", className: "absolute h-screen w-screen -z-10" }),
+    /* @__PURE__ */ gt.jsx("img", { src: "https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/background.jpg", className: "absolute h-screen w-screen -z-10" }),
     /* @__PURE__ */ gt.jsxs("div", { className: "flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur", children: [
       /* @__PURE__ */ gt.jsxs("div", { className: "flex justify-center items-center", children: [
-        /* @__PURE__ */ gt.jsx("a", { href: "https://github.com/KingMaj0r/harmony", children: /* @__PURE__ */ gt.jsx("img", { src: "assets/img/favicon.png", className: "h-24" }) }),
+        /* @__PURE__ */ gt.jsx("a", { href: "https://github.com/KingMaj0r/harmony", children: /* @__PURE__ */ gt.jsx("img", { src: "https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/favicon.png", className: "h-24" }) }),
         /* @__PURE__ */ gt.jsx(
           "svg",
           {
@@ -25743,7 +25743,7 @@ const RM = () => {
       ] }) }) })
     ] })
   ] }) : /* @__PURE__ */ gt.jsxs("div", { className: "flex items-center justify-center min-h-screen flex-col", children: [
-    /* @__PURE__ */ gt.jsx("img", { src: "https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core/dist/assets/img/background.jpg", className: "absolute h-screen w-screen -z-10" }),
+    /* @__PURE__ */ gt.jsx("img", { src: "https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/background.jpg", className: "absolute h-screen w-screen -z-10" }),
     /* @__PURE__ */ gt.jsxs("div", { className: "flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur", children: [
       /* @__PURE__ */ gt.jsx("a", { href: "https://github.com/KingMaj0r/harmony", children: /* @__PURE__ */ gt.jsx("img", { src: "assets/img/logo.png", className: "h-24" }) }),
       /* @__PURE__ */ gt.jsxs("div", { className: "text-white text-wrap", children: [

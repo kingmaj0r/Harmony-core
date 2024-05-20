@@ -61,7 +61,7 @@ const App: React.FC = () => {
   if (!config) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
-        <img src="https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core/dist/assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
+        <img src="https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
         <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur">
           <a href="https://github.com/KingMaj0r/harmony">
             <img src="assets/img/logo.png" className="h-24" />
@@ -74,11 +74,11 @@ const App: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen flex-col">
-      <img src="assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
+      <img src="https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/background.jpg" className="absolute h-screen w-screen -z-10" />
       <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur">
         <div className="flex justify-center items-center">
           <a href="https://github.com/KingMaj0r/harmony">
-            <img src="assets/img/favicon.png" className="h-24" />
+            <img src="https://cdn.jsdelivr.net/npm/@kingmaj0r/harmony-core@latest/dist/assets/img/favicon.png" className="h-24" />
           </a>
           <svg
             xmlns="http://www.w3.org/2000/svg"
