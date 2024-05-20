@@ -6,12 +6,26 @@ on:
       - main
 
 jobs:
-  build:
+  bump-version:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+    - name: Bump version
+      id: bump_version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        . ./.github/scripts/bump_version.sh
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        npm version $new_version --no-git-tag-version
+
+  build:
+    needs: [bump-version]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
@@ -20,36 +34,6 @@ jobs:
       run: npm i
     - name: Build project
       run: npm run build
-    - name: Bump version
-      id: bump_version
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        version=$(node -p "require('./package.json').version")
-        latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
-        
-        if [ -z "$latest_release" ]; then
-          major=$(echo $version | cut -d. -f1)
-          minor=$(echo $version | cut -d. -f2)
-          patch=$(echo $version | cut -d. -f3)
-          new_version="$major.$minor.$((patch + 1))"
-        else
-          IFS='.' read -ra version_parts <<< "$version"
-          IFS='.' read -ra latest_release_parts <<< "$latest_release"
-          
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
-          
-          if [ "${latest_release_parts[0]}" -eq "$major" ] && [ "${latest_release_parts[1]}" -eq "$minor" ]; then
-            new_version="$major.$minor.$((patch + 1))"
-          else
-            new_version="$major.$((minor + 1)).0"
-          fi
-        fi
-        
-        echo "new_version=$new_version" >> $GITHUB_OUTPUT
-        npm version $new_version --no-git-tag-version
     - uses: actions/upload-artifact@v2
       with:
         name: build
@@ -64,9 +48,8 @@ jobs:
           tsconfig.json
           vite.config.ts
           vite.config.page.ts
-
   publish-npm:
-    needs: build
+    needs: [bump-version, build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -82,7 +65,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
   publish-gpr:
-    needs: build
+    needs: [bump-version, build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -102,7 +85,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           
   publish-github-release:
-    needs: [build, publish-npm, publish-gpr]
+    needs: [bump-version, build, publish-npm, publish-gpr]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -118,7 +101,7 @@ jobs:
           gh release create V$NEW_VERSION --generate-notes
           
   publish-github:
-      needs: [build, publish-npm, publish-gpr, publish-github-release]
+      needs: [bump-version, build, publish-npm, publish-gpr, publish-github-release]
       runs-on: ubuntu-latest
       steps:
         - uses: actions/download-artifact@v2
