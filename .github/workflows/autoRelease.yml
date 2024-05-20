@@ -27,7 +27,7 @@ jobs:
         run: |
           . ./.github/scripts/bump_version.sh
           npm version $new_version --no-git-tag-version
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v2
         with:
           name: build
