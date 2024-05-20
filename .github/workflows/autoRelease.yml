@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.build.bump_version.new_version }}
+      new_version: ${{ steps.bump_version.outputs.new_version }}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
