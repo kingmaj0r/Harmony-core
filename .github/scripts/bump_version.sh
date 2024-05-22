@@ -4,31 +4,35 @@ version=$(node -p "require('./package.json').version")
 latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tag_name')
 
 if [ -z "$latest_release" ]; then
-  major=$(echo $version | cut -d. -f1)
-  minor=$(echo $version | cut -d. -f2)
-  patch=$(echo $version | cut -d. -f3)
+  IFS='.' read -ra parts <<< "$version"
+  major=${parts[0]}
+  minor=${parts[1]}
+  patch=${parts[2]}
   ((patch++))
-  if [ $patch -eq 100 ]; then
+
+  if (( patch > 99 )); then
     patch=0
     ((minor++))
-    if [ $minor -eq 10 ]; then
+
+    if (( minor > 9 )); then
       minor=0
       ((major++))
     fi
   fi
+
   new_version="$major.$minor.$patch"
 else
-  # Extract the version number from the latest release tag
-  latest_version=$(echo $latest_release | cut -d'v' -f2)
-  major_latest=$(echo $latest_version | cut -d. -f1)
-  minor_latest=$(echo $latest_version | cut -d. -f2)
-  patch_latest=$(echo $latest_version | cut -d. -f3)
+  IFS='v' read -r _ latest_version <<< "$latest_release"
+  IFS='.' read -ra latest_parts <<< "$latest_version"
 
-  major=$(echo $version | cut -d. -f1)
-  minor=$(echo $version | cut -d. -f2)
-  patch=$(echo $version | cut -d. -f3)
+  major=${parts[0]}
+  minor=${parts[1]}
+  patch=${parts[2]}
 
-  # Increment the version based on the latest release
+  major_latest=${latest_parts[0]}
+  minor_latest=${latest_parts[1]}
+  patch_latest=${latest_parts[2]}
+
   if (( major > major_latest )); then
     major=$((major + 1))
     minor=0
