@@ -22,7 +22,7 @@ if [ -z "$latest_release" ]; then
 
   new_version="$major.$minor.$patch"
 else
-  IFS='v' read -r _ latest_version <<< "$latest_release"
+  IFS='V' read -r _ latest_version <<< "$latest_release"
   IFS='.' read -ra latest_parts <<< "$latest_version"
 
   major=${parts[0]}
