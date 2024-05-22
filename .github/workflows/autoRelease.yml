@@ -40,9 +40,11 @@ jobs:
           . ./.github/scripts/bump_version.sh
           npm version $new_version --no-git-tag-version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "::set-output name=new-version::$new_version"
+
       - name: publish changes to github
         env:
-          NEW_VERSION: ${{ steps.bump-version.outputs.new-version }}
+          NEW_VERSION: ${{ steps.bump-version.outputs.new_version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
