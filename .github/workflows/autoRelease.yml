@@ -1,5 +1,8 @@
 name: Release
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -55,10 +58,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install dependencies
-        run: npm ci
-      - name: Build project
-        run: npm run build
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
@@ -66,8 +65,7 @@ jobs:
           NEW_VERSION: ${{ needs.build.outputs.new-version }}
         with:
           tag_name: ${{ env.NEW_VERSION }}
-          files: |
-            dist/
+          files: dist/
           generate_release_notes: true
           make_latest: true
 
@@ -119,9 +117,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ needs.build.outputs.new-version }}
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git add package.json
-          git add dist/*
           git commit -m "Bump version to $NEW_VERSION"
-          git push --set-upstream origin main -o github.token=${GITHUB_TOKEN}
+          git push --set-upstream origin main
