@@ -80,9 +80,9 @@ jobs:
       - name: Add Files
         run: |
           git add dist/
-          git add package.json/
           git add public/
           git add types/
+          git add package.json
           git commit -m "${{ env.NEW_VERSION }}"
       - name: Push Changes
         uses: ad-m/github-push-action@v0.8.0
