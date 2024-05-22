@@ -41,6 +41,5 @@ export default defineConfig({
 		globals: true,
 		environment: "jsdom",
 		setupFiles: "@testing-library/jest-dom",
-		mockReset: true,
 	},
 });
