@@ -8,14 +8,20 @@ export default defineConfig({
     nodePolyfills(),
   ],
   build: {
-    outDir: 'dist',
+    outDir: 'public',
     minify: true,
     emptyOutDir: false,
     sourcemap: true,
+    target: "esnext",
     lib: {
       entry: 'src/index.tsx',
       formats: ['es'],
-      fileName: "index",
+      fileName: "assets/js/index",
+    },
+  },
+  server: {
+    fs: {
+      strict: true,
     },
   },
 });

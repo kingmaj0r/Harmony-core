@@ -1,45 +1,58 @@
 {
   "name": "@kingmaj0r/harmony-core",
-  "version": "1.0.17",
+  "version": "1.0.99",
   "description": "Core parts for Harmony with vite.",
-  "main": "dist/harmony.js",
-  "module": "dist/harmony.mjs",
+  "main": "dist/assets/js/harmony.cjs",
+  "module": "dist/assets/js/harmony.js",
   "types": "dist/harmony.d.ts",
+  "type": "module",
   "files": [
     "dist",
-    "public/index.html"
+    "public",
+    "types"
   ],
   "scripts": {
-    "build": "vite build --config vite.config.ts && vite build --config vite.config.page.ts",
+    "test": "vitest run",
+    "build": "npm run test && vite build",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "vite",
-    "plugin"
+    "plugin",
+    "vite-plugin"
   ],
   "author": "KingMaj0r",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "@types/connect": "^3.4.38",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/react": "^15.0.7",
+    "@types/express": "^4.17.21",
     "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.12.12",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
     "@types/serve-static": "^1.15.7",
     "@vitejs/plugin-react": "^4.2.1",
-    "axios": "^1.6.8",
-    "connect": "^3.7.0",
+    "axios": "^1.7.0",
     "js-yaml": "^4.1.0",
-    "react": "^18.3.1",
-    "serve-static": "^1.15.0",
+    "jsdom": "^24.0.0",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11",
     "vite-plugin-dts": "^3.9.1",
-    "vite-plugin-node-polyfills": "^0.21.0"
+    "vite-plugin-node-polyfills": "^0.21.0",
+    "vitest": "^1.6.0"
   },
   "peerDependencies": {
+    "consola": "^3.2.3",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "react-dom": "^18.3.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.0.0"
   }
 }

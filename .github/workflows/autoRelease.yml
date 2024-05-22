@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm i
+        run: npm ci
       - name: Build project
         run: npm run build
       - name: Bump version
@@ -43,6 +43,7 @@ jobs:
             tsconfig.json
             vite.config.ts
             vite.config.page.ts
+
   publish-github-release:
     needs: [build]
     runs-on: ubuntu-latest
@@ -50,14 +51,27 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - name: publish github release
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ needs.build.outputs.new-version }}
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          gh release create V$NEW_VERSION --generate-notes
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          files: |
+            dist/
+          generate_release_notes: true
+          make_latest: true
+
   publish-npm:
     needs: [build, publish-github-release]
     runs-on: ubuntu-latest
@@ -93,6 +107,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
   publish-github:
     needs: [build, publish-github-release, publish-npm, publish-gpr]
     runs-on: ubuntu-latest
@@ -100,16 +115,14 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - name: Configure Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
       - name: Release all the changes to GitHub repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ needs.build.outputs.new-version }}
         run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add package.json
           git add dist/*
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin main
+          git push --set-upstream origin main -o github.token=${GITHUB_TOKEN}
