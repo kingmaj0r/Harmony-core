@@ -9,7 +9,9 @@
   "files": [
     "dist",
     "public",
-    "types"
+    "types",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "vitest run",
@@ -22,7 +24,7 @@
     "vite-plugin"
   ],
   "author": "KingMaj0r",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@testing-library/jest-dom": "^6.4.5",
