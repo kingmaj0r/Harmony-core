@@ -10,7 +10,6 @@ on:
     paths-ignore:
       - .github/workflows/**
       - "**/README.md"
-      - "package.json"
 
 jobs:
   build:
@@ -57,45 +56,8 @@ jobs:
             vite.config.ts
             vite.config.page.ts
 
-  publish-github-release:
-    needs: [build]
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NEW_VERSION: ${{ needs.build.outputs.new-version }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Create Branch
-        run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
-          git remote set-url origin git@github.com/KingMaj0r/harmony-core.git
-          git checkout -b "V${{ env.NEW_VERSION }}"
-      - name: Add Files
-        run: |
-          git add dist/
-          git add public/
-          git add types/
-          git add package.json
-          git commit -m "${{ env.NEW_VERSION }}"
-          git push --set-upstream origin "V${{ env.NEW_VERSION }}"
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: V${{ env.NEW_VERSION }}
-          target_commitish: "V${{ needs.build.outputs.new-version }}"
-          generate_release_notes: true
-          make_latest: true
-
   publish-npm:
-    needs: [build, publish-github-release]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -111,7 +73,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
   publish-gpr:
-    needs: [build, publish-github-release]
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -131,7 +93,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   publish-github:
-    needs: [build, publish-github-release, publish-npm, publish-gpr]
+    needs: [build, publish-npm, publish-gpr]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
