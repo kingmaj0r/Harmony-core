@@ -7,6 +7,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - .github/workflows/**
+      - "**/README.md"
+      - "package.json"
 
 jobs:
   build:
@@ -14,6 +18,12 @@ jobs:
     outputs:
       new-version: ${{ steps.bump-version.outputs.new_version }}
     steps:
+      - name: Check if push is from GitHub Actions
+        run: |
+          if [ "${{ github.actor }}" == "github-actions[bot]" ]; then
+            echo "Push triggered by GitHub Actions bot. Skipping workflow."
+            exit 78
+          fi
       - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -50,6 +60,9 @@ jobs:
   publish-github-release:
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NEW_VERSION: ${{ needs.build.outputs.new-version }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -58,14 +71,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Create Branch
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin git@github.com/KingMaj0r/harmony-core.git
+          git checkout -b "V${{ env.NEW_VERSION }}"
+      - name: Add Files
+        run: |
+          git add dist/
+          git add package.json/
+          git add public/
+          git add types/
+          git commit -m "${{ env.NEW_VERSION }}"
+      - name: Push Changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "V${{ needs.build.outputs.new-version }}"
       - name: Release
         uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ needs.build.outputs.new-version }}
         with:
-          tag_name: ${{ env.NEW_VERSION }}
-          files: dist/
+          tag_name: V${{ env.NEW_VERSION }}
+          target_commitish: "V${{ needs.build.outputs.new-version }}"
           generate_release_notes: true
           make_latest: true
 
@@ -121,4 +149,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git add package.json
           git commit -m "Bump version to $NEW_VERSION"
+          git remote set-url origin git@github.com/KingMaj0r/harmony-core.git
           git push --set-upstream origin main
