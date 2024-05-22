@@ -84,7 +84,7 @@ jobs:
           git add types/
           git add package.json
           git commit -m "${{ env.NEW_VERSION }}"
-          git push --set-upstream origin ${{ env.NEW_VERSION }}
+          git push --set-upstream origin "V${{ env.NEW_VERSION }}"
 
       - name: Release
         uses: softprops/action-gh-release@v2
