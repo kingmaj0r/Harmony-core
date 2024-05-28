@@ -26,11 +26,11 @@ export function harmonyCore(): Plugin {
         res.send(config);
       })
       
-      app.use(express.static(path.resolve(__dirname, '../../../public/')));
+      app.use('/assets/img', express.static(path.resolve(__dirname, '../../../src/assets/img')));
       app.use('/dist', express.static(path.resolve(__dirname, '../../')));
 
-      app.get('*', (req, res) => {
-        const indexFile = resolve(__dirname, '../../../public/index.html');
+      app.get('/', (req, res) => {
+        const indexFile = resolve(__dirname, '../../index.html');
         res.sendFile(indexFile);
       });
 

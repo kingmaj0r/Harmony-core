@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import background from "./assets/img/background.png";
+import logo from "./assets/img/logo.png";
+import favicon from "./assets/img/favicon.png";
 //import * as mysql from "mysql2/promise";
+
+import "./assets/css/tailwind.css";
 
 interface Service {
   host: string;
@@ -86,7 +91,7 @@ function App() {
         //response = await pingDatabase(host, service.port, config.database.username, config.database.password, config.database.database);
       }
 
-      return response.status === 200 ? "online" : "offline";
+      return response?.status === 200 ? "online" : "offline";
     } catch {
       return "offline";
     }
@@ -116,10 +121,10 @@ function App() {
   if (!config) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
-        <img src="/assets/img/background.png" className="absolute h-screen w-screen -z-10" />
+        <img src={background} className="absolute h-screen w-screen -z-10" />
         <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur" data-testid="config-error">
           <a href="https://github.com/KingMaj0r/harmony">
-            <img src="/assets/img/logo.png" className="h-24" />
+            <img src={logo} className="h-24" />
           </a>
           <div className="text-white text-wrap">config.yml does not exist. Please create a config.yml and specify the values or get a example config.yml at <a className="text-blue-500" href="https://github.com/KingMaj0r/harmony">the harmony repo</a>.</div>
         </div>
@@ -130,10 +135,10 @@ function App() {
   if (config.app.environment !== "development") {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
-        <img src="/assets/img/background.png" className="absolute h-screen w-screen -z-10" />
+        <img src={background} className="absolute h-screen w-screen -z-10" />
         <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur" data-testid="environment-error">
           <a href="https://github.com/KingMaj0r/harmony">
-            <img src="/assets/img/logo.png" className="h-24" />
+            <img src={logo} className="h-24" />
           </a>
           <div className="text-white text-wrap">You are running vite in development mode but your config.yml is set to Production.</div>
         </div>
@@ -143,11 +148,11 @@ function App() {
 
   return (
     <div className="flex items-center justify-center min-h-screen flex-col" data-testid="app-root">
-      <img src="/assets/img/background.png" className="absolute h-screen w-screen -z-10" />
+      <img src={background} className="absolute h-screen w-screen -z-10" />
       <div className="flex flex-col justify-center items-center max-w-xl p-12 bg-slate-800 rounded-2xl shadow-md bg-opacity-70 backdrop-filter backdrop-blur">
         <div className="flex justify-center items-center">
           <a href="https://github.com/KingMaj0r/harmony">
-            <img src="/assets/img/favicon.png" className="h-24" />
+            <img src={favicon} className="h-24" />
           </a>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -194,17 +199,17 @@ function App() {
               <tr className="frontend-status">
                 <td className="text-gray-400 px-12">Frontend</td>
                 <td className="text-blue-500 px-12">{config.app.host  + ":" + config.app.frontend.port}</td>
-                <td className={`px-12 text-${frontendStatus === "online" ? "green" : "red"}-500`}>{frontendStatus}</td>
+                <td className={`px-12 ${frontendStatus === "online" ? "text-green-500" : "text-red-500"}`}>{frontendStatus}</td>
               </tr>
               <tr>
                 <td className="px-12 text-gray-400">Backend</td>
                 <td className="px-12 text-blue-500">{config.app.host  + ":" + config.app.backend.port}</td>
-                <td className={`px-12 text-${backendStatus === "online" ? "green" : "red"}-500`}>{backendStatus}</td>
+                <td className={`px-12 ${backendStatus === "online" ? "text-green-500" : "text-red-500"}`}>{backendStatus}</td>
               </tr>
               <tr>
                 <td className="px-12 text-gray-400">Database</td>
                 <td className="px-12 text-blue-500">{config.app.host  + ":" + config.database.port}</td>
-                <td className={`px-12 text-${databaseStatus === "online" ? "green" : "red"}-500`}>{databaseStatus}</td>
+                <td className={`px-12 ${databaseStatus === "online" ? "text-green-500" : "text-red-500"}`}>{databaseStatus}</td>
               </tr>
             </tbody>
           </table>
